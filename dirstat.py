@@ -17,3 +17,10 @@ def walk(top):
             dir['size'] += tree[dn]['size']
     return tree
 
+def print_tree(tree, root, *, indent=0, **print_kwargs):
+    print(' '*indent, os.path.basename(root) + os.path.sep, tree[root]['size'], **print_kwargs)
+    for fn, size in tree[root]['files'].items():
+        print(' '*(indent+2), fn,size, **print_kwargs)
+    for dn in tree[root]['subdirs']:
+        print_tree(tree, dn, indent=indent+2, **print_kwargs)
+
