@@ -3,29 +3,41 @@ import os
 import os.path
 
 class FileItem:
-    def __init__(self, path, size):
+    def __init__(self, path, size, parent=None):
         self.path = path
         self.size = size
+        self.parent = parent
+
+    def __repr__(self):
+        return 'FileItem({0.path}, {0.size}, {0.parent})'.format(self)
 
 class DirectoryItem(FileItem):
-    def __init__(self, path, size, subitems):
-        FileItem.__init__(self, path, size)
+    def __init__(self, path, size, subitems, parent=None):
+        FileItem.__init__(self, path, size, parent)
         self.subitems = subitems
 
-def walk(top):
+    def __repr__(self):
+        return 'DirectoryItem({0.path}, {0.size}, {0.parent}, {1})'.format(
+                self,
+                list(map(lambda f: f.path, self.subitems)))
+
+def walk(top, cb=None):
     tree = {}
     for dirpath, dirnames, filenames in os.walk(top, topdown=False):
         dir = DirectoryItem(dirpath, 0, [])
         tree[dirpath] = dir
         for fn in filenames:
             stat = os.stat(os.path.join(dirpath, fn))
-            dir.subitems.append(FileItem(os.path.join(dirpath, fn), stat.st_size))
+            dir.subitems.append(FileItem(os.path.join(dirpath, fn), stat.st_size, dir))
             dir.size += stat.st_size
         for dn in dirnames:
             dn = os.path.join(dirpath, dn)
             subdir = tree[dn]
-            dir.subdirs.append(subdir)
-            dir.size += tree[dn]['size']
+            subdir.parent = dir.path
+            dir.subitems.append(subdir)
+            dir.size += tree[dn].size
+        if cb:
+            cb(tree)
     return tree
 
 def print_tree(tree, root, *, indent=0, **print_kwargs):
@@ -34,8 +46,5 @@ def print_tree(tree, root, *, indent=0, **print_kwargs):
         if isinstance(item, DirectoryItem):
             print_tree(tree, item.path, indent=indent+2, **print_kwargs)
         else:
-            print(' '*(indent+2), fn, size, **print_kwargs)
-
-tree = walk('.')
-print_tree(tree, '.')
+            print(' '*(indent+2), item.path, item.size, **print_kwargs)
 
