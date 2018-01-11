@@ -26,12 +26,16 @@ def walk(top, cb=None):
     for dirpath, dirnames, filenames in os.walk(top, topdown=False):
         dir = tree.setdefault(dirpath, DirectoryItem(dirpath, 0, []))
         for fn in filenames:
-            stat = os.stat(os.path.join(dirpath, fn))
-            dir.subitems.append(FileItem(os.path.join(dirpath, fn), stat.st_size, dir))
-            dir.size += stat.st_size
+            try:
+                stat = os.stat(os.path.join(dirpath, fn))
+                size = stat.st_size
+            except:
+                size = 0
+            dir.subitems.append(FileItem(os.path.join(dirpath, fn), size, dir))
+            dir.size += size
         for dn in dirnames:
             dn = os.path.join(dirpath, dn)
-            subdir = tree[dn]
+            subdir = tree.setdefault(dn, DirectoryItem(dn, 0, []))
             subdir.parent = dir.path
             dir.subitems.append(subdir)
             dir.size += tree[dn].size

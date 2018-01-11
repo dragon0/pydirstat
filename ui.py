@@ -66,9 +66,9 @@ class MainWindow(tk.Frame):
             root = self.topPath.get()
             tree = dirstat.walk(root)
             self.insert_node(tree[root], tree)
-        except Exception as e:
-            #tkmb.showerror('Error', e)
-            raise
+        except:
+            import traceback
+            tkmb.showerror('Error', traceback.format_exc())
 
     def clear_tree(self):
         c = self.treeFrame.get_children('')
