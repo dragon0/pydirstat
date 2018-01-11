@@ -22,10 +22,9 @@ class DirectoryItem(FileItem):
                 list(map(lambda f: f.path, self.subitems)))
 
 def walk(top, cb=None):
-    tree = {}
+    tree = {top: DirectoryItem(top, 0, [])}
     for dirpath, dirnames, filenames in os.walk(top, topdown=False):
-        dir = DirectoryItem(dirpath, 0, [])
-        tree[dirpath] = dir
+        dir = tree.setdefault(dirpath, DirectoryItem(dirpath, 0, []))
         for fn in filenames:
             stat = os.stat(os.path.join(dirpath, fn))
             dir.subitems.append(FileItem(os.path.join(dirpath, fn), stat.st_size, dir))
