@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox as tkmb
 from tkinter import filedialog as tkfd
+import threading
 import dirstat
 
 class FileFrame(tk.Frame):
@@ -48,8 +49,10 @@ class MainWindow(tk.Frame):
         tpe.pack(side=tk.LEFT)
         self.browseButton = bb = tk.Button(ff, text='...', command=self.selectDir)
         bb.pack(side=tk.LEFT)
-        self.goButton = gb = tk.Button(ff, text='>', command=self.walk)
+        self.goButton = gb = tk.Button(ff, text='>', command=self.go)
         gb.pack(side=tk.LEFT)
+        self.statusLabel = sl = tk.Label(ff, text='')
+        sl.pack(side=tk.LEFT)
 
         self.treeFrame = ttk.Treeview(self, columns=('size',))
         self.treeFrame.heading('#0', text='Path')
@@ -60,13 +63,20 @@ class MainWindow(tk.Frame):
     def selectDir(self, *args):
         self.topPath.set(tkfd.askdirectory())
 
+    def go(self, *args):
+        threading.Thread(target=self.walk).start()
+
     def walk(self, *args):
         self.clear_tree()
+        self.statusLabel['text'] = ("running")
         try:
             root = self.topPath.get()
             tree = dirstat.walk(root)
+            self.statusLabel['text'] = ("building")
             self.insert_node(tree[root], tree)
+            self.statusLabel['text'] = ("done")
         except:
+            self.statusLabel['text'] = ("error")
             import traceback
             tkmb.showerror('Error', traceback.format_exc())
 
