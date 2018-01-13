@@ -76,7 +76,7 @@ class MainWindow(tk.Frame):
             self.treeFrame.delete(i)
 
     def insert_node(self, item, tree, parent=''):
-        id = self.treeFrame.insert(parent, 'end', text=item.path, values=(item.size,))
+        id = self.treeFrame.insert(parent, 'end', text=item.path, values=('{:,}'.format(item.size),))
         if isinstance(item, dirstat.DirectoryItem):
             for subitem in sorted(item.subitems, key=lambda i: i.size, reverse=True):
                 self.insert_node(subitem, tree, id)
