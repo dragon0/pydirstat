@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox as tkmb
+from tkinter import filedialog as tkfd
 import dirstat
 
 class FileFrame(tk.Frame):
@@ -57,8 +58,7 @@ class MainWindow(tk.Frame):
         self.treeFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
     def selectDir(self, *args):
-        #TODO
-        pass
+        self.topPath.set(tkfd.askdirectory())
 
     def walk(self, *args):
         self.clear_tree()
